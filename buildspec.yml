@@ -3,6 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
+      docker: 18
       nodejs: 12
     commands:
       # Install dependencies needed for running tests
@@ -14,6 +15,13 @@ phases:
     commands:
       # Discover and run unit tests in the 'tests' directory
       - npm test
+      #docker authentication
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 555573355129.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - npm run build
+      - docker build -t nodejs-server .
+      - docker tag nodejs-server:latest 555573355129.dkr.ecr.us-east-1.amazonaws.com/nodejs-server:latest
   post_build:
     commands:
       # Remove existing node_modules to clear dev dependencies
@@ -22,17 +30,16 @@ phases:
       # Install runtime dependencies
       - npm install --production
 
+      # push to ECR
+      - docker push 555573355129.dkr.ecr.us-east-1.amazonaws.com/nodejs-server:latest
+
       # Do not remove this statement. This command is required for AWS CodeStar projects.
       # Update the AWS Partition, AWS Region, account ID and project ID in the project ARN in template-configuration.json file so AWS CloudFormation can tag project resources.
-      - sed -i.bak 's/\$PARTITION\$/'${PARTITION}'/g;s/\$AWS_REGION\$/'${AWS_REGION}'/g;s/\$ACCOUNT_ID\$/'${ACCOUNT_ID}'/g;s/\$PROJECT_ID\$/'${PROJECT_ID}'/g' template-configuration.json
+      # - sed -i.bak 's/\$PARTITION\$/'${PARTITION}'/g;s/\$AWS_REGION\$/'${AWS_REGION}'/g;s/\$ACCOUNT_ID\$/'${ACCOUNT_ID}'/g;s/\$PROJECT_ID\$/'${PROJECT_ID}'/g' template-configuration.json
+
+      # apparently we need this : https://docs.aws.amazon.com/codepipeline/latest/userguide/file-reference.html
+      - printf '[{"name":"nodejs-server","imageUri":"555573355129.dkr.ecr.us-east-1.amazonaws.com"}]' > imagedefinitions.json
+
 artifacts:
   files:
-    - template.yml
-    - README.md
-    - package.json
-    - app.js
-    - appspec.yml
-    - scripts/*
-    - node_modules/**/*
-    - public/**/*
-    - template-configuration.json
+    - imagedefinitions.json

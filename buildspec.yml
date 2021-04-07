@@ -38,7 +38,7 @@ phases:
       # - sed -i.bak 's/\$PARTITION\$/'${PARTITION}'/g;s/\$AWS_REGION\$/'${AWS_REGION}'/g;s/\$ACCOUNT_ID\$/'${ACCOUNT_ID}'/g;s/\$PROJECT_ID\$/'${PROJECT_ID}'/g' template-configuration.json
 
       # apparently we need this : https://docs.aws.amazon.com/codepipeline/latest/userguide/file-reference.html
-      - printf '[{"name":"nodejs-server","imageUri":"555573355129.dkr.ecr.us-east-1.amazonaws.com"}]' > imagedefinitions.json
+      - printf '[{"name":"nodejs-server","imageUri":"555573355129.dkr.ecr.us-east-1.amazonaws.com/nodejs-server:latest"}]' > imagedefinitions.json
 
 artifacts:
   files:

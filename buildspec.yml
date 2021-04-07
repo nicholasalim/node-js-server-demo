@@ -17,11 +17,9 @@ phases:
       - npm test
       #docker authentication
       # - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 555573355129.dkr.ecr.us-east-1.amazonaws.com
-      #
       - aws ecr get-login --no-include-email --region us-east-1
   build:
     commands:
-      - npm run build
       - docker build -t nodejs-server .
       - docker tag nodejs-server:latest 555573355129.dkr.ecr.us-east-1.amazonaws.com/nodejs-server:latest
   post_build:
